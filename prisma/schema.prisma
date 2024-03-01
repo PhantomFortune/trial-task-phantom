@@ -1,0 +1,48 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+datasource db {
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
+  directUrl         = env("DIRECT_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Users {
+  user_id      Int     @id @default(autoincrement())
+  email        String  @unique
+  password     String
+  address      String
+  layouts Layouts[]
+}
+
+model Layouts {
+  layout_id    Int      @id @default(autoincrement())
+  user_id      Int
+  layout_name  String
+  users        Users?   @relation(fields: [user_id], references: [user_id])
+  widgets LayoutWidgets[]
+}
+
+model Widgets {
+  widget_id           Int      @id @default(autoincrement())
+  widget_name         String
+  widget_description  String?
+  layouts LayoutWidgets[]
+}
+
+model LayoutWidgets {
+  layout  Layouts  @relation(fields: [layout_id], references: [layout_id])
+  layout_id Int
+  widget  Widgets  @relation(fields: [widget_id], references: [widget_id])
+  widget_id Int  
+  widget_config Json
+  @@id([layout_id, widget_id])
+}
+
